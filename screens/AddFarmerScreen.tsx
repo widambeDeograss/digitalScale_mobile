@@ -7,7 +7,7 @@ import { Colors } from '../constants/Colors';
 import { useBleContext } from '../components/BleContext';
 
 interface farmerDat {
-  farmer: Object
+  farmer: Object;
   farmer_data: Array<Object>
 }
 
@@ -101,7 +101,7 @@ const AddFarmerScreen = (props:any) => {
     cropId:string | null;
     corporate:string | null;
   }
-   
+
 
   const onProceed = () => {
 
@@ -220,7 +220,7 @@ const AddFarmerScreen = (props:any) => {
             />
           )}
         </View>
-      
+
       </View>
 
       <View style={{width: "90%",  marginTop: 30,alignItems: 'center',  }}>

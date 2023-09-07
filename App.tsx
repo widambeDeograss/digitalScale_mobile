@@ -2,7 +2,6 @@ import 'react-native-gesture-handler';
 import React, {useState, useEffect, useReducer} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-// import { BleManager, Device } from 'react-native-ble-plx';
 import BleManager from 'react-native-ble-manager';
 import {DeviceList} from './components/DeviceCard';
 import WeightDisplay from './screens/WeightDisplay';
@@ -70,7 +69,7 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      
+
       <BleProvider>
         <Stack.Navigator>
           <Stack.Screen
@@ -97,20 +96,20 @@ const App = () => {
             headerTitleStyle:{fontFamily: 'Poppins-Medium',},
             headerTitle: 'Device',
           }}
-          
+
           />
 
           <Stack.Screen name="farmer" component={AddFarmerScreen} options={{
             headerTitleStyle:{fontFamily: 'Poppins-Medium',},
             headerTitle: 'Farmer',
           }}/>
-          
+
           <Stack.Screen name="receipt" component={ReceiptScreen} options={{
             headerTitleStyle:{fontFamily: 'Poppins-Medium',},
             headerTitle: 'Receipts',
           }}/>
         </Stack.Navigator>
-      
+
       </BleProvider>
     </NavigationContainer>
   );
