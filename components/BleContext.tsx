@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface BleDevice {
-  name: string | null;
-  id: string | null;
+  
 }
 
 interface currentFarmerI {

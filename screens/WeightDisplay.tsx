@@ -4,21 +4,55 @@ import ProgressCircle from 'react-native-progress-circle';
 import { SpeedDial, Button, Divider, Dialog, Icon } from '@rneui/themed';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useBleContext } from '../components/BleContext';
+import BleManager from 'react-native-ble-manager';
 
 const WeightDisplay = (props: any) => {
   const [addFarmerDial, setaddFarmerDial] = useState(false);
   const { connectedScale, currentFarmer, setCurrentReceipt, setCurrentFarmer } = useBleContext();
   const [isSelling, setisSelling] = useState(false);
+  const [parsedWeightData, setparsedWeightData] = useState();
 
-  console.log(connectedScale);
+  // console.log(connectedScale?.serviceUUIDs[0]);
+
+  
+  useEffect(() => {
+
+    const weightCharacteristicUUID = 'YOUR_WEIGHT_CHARACTERISTIC_UUID';
+    console.log("---------------------------------");
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    BleManager.read(
+      connectedScale?.id,
+      "181d",
+      '2A98',
+    )
+      .then((readData) => {
+        // Success code
+        console.log("Read: " + parseFloat(readData));
+
+        // https://github.com/feross/buffer
+        // https://nodejs.org/api/buffer.html#static-method-bufferfromarray
+        const buffer = Buffer.from(readData);
+        const sensorData = buffer.readUInt8(1);
+        console.log(sensorData);
+      })
+      .catch((error) => {
+        // Failure code
+        console.log(error);
+        setparsedWeightData(0);
+      });
+}, [parsedWeightData, connectedScale])
+
   const sellCrops = async () => {
     setisSelling(true);
+
 
     try {
       const requestBody = {
         cropId: currentFarmer?.cropId,
         farmerId: currentFarmer?.id,
-        quantity_in_kg: 1233.3, // You might want to get this value from user input or elsewhere
+        quantity_in_kg:parsedWeightData, // You might want to get this value from user input or elsewhere
       };
 
       const response = await fetch("http://172.17.17.151:1999/mobile_api/scale_crop_sale", {
@@ -59,6 +93,55 @@ const WeightDisplay = (props: any) => {
       props.navigation.navigate("receipt")
     }
   };
+  const getWeight = () =>  {
+    const weightCharacteristicUUID = 'YOUR_WEIGHT_CHARACTERISTIC_UUID';
+    
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    BleManager.read(
+      connectedScale?.id,
+      "181d",
+      '2A98',
+    )
+      .then((readData) => {
+        // Success code
+        console.log("Read: " + parseFloat(readData));
+        setparsedWeightData(parseFloat(readData))
+        // https://github.com/feross/buffer
+        // https://nodejs.org/api/buffer.html#static-method-bufferfromarray
+        const buffer = Buffer.from(readData);
+        const sensorData = buffer.readUInt8(1);
+        console.log(sensorData);
+      })
+      .catch((error) => {
+        // Failure code
+        console.log("---------------------------------");
+        setparsedWeightData(1);
+        console.log(error);
+      });
+  }
+
+  const TareWeight = () =>  {
+    try {
+      const peripheralId = connectedScale?.id;
+
+      const tareCharacteristicUUID = 'YOUR_TARE_COMMAND_CHARACTERISTIC_UUID';
+
+      const tareCommand = 'YOUR_TARE_COMMAND'; // Replace with the actual tare command bytes.
+
+      BleManager.write(peripheralId, tareCharacteristicUUID, tareCommand)
+        .then(() => {
+          console.log('Tare command sent successfully.');
+
+        })
+        .catch((error) => {
+          console.error('Error sending tare command:', error);
+        });
+    } catch (error) {
+      console.error('Error sending tare command:', error);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -80,21 +163,24 @@ const WeightDisplay = (props: any) => {
       </View>
       <View style={styles.weightView}>
         <ProgressCircle
-          percent={30}
+          percent={parseInt(parsedWeightData)}
           radius={70}
           borderWidth={8}
           color="#3399FF"
           shadowColor="#999"
           bgColor="#fff">
-          <Text style={{ fontSize: 28, fontFamily: 'Poppins-SemiBold', }}>{'30kg'}</Text>
+          <Text style={{ fontSize: 28, fontFamily: 'Poppins-SemiBold', }}>{parsedWeightData? parsedWeightData: 0}Kgs</Text>
         </ProgressCircle>
       </View>
       <View style={{ marginTop: 10 }}>
-        <Text style={{ fontSize: 20, marginTop: 10, marginBottom: 10, fontFamily: 'Poppins-SemiBold', }}>
-          Current weight: 500Kgs
+        <Text style={{ fontSize: 20, marginTop: 10, marginBottom: 10, fontFamily: 'Poppins-SemiBold', textAlign:"center" }}>
+          Current weight: {parsedWeightData? parsedWeightData: 0}kgs
         </Text>
-        <Button title="TARE" type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
+        <View style={{flexDirection:"row", width:"80%", justifyContent:"space-evenly"}}>
+        <Button title="GET SCALE WEIGHT" onPress={getWeight} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
+        <Button title="TARE WEIGHT" onPress={getWeight} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
 
+        </View>
       </View>
       <Divider style={{ borderWidth: 1, backgroundColor: "#AFAFAF", width: "95%", marginTop: 17 }} />
 
