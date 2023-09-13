@@ -1,48 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar, Alert } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Alert, NativeModules, NativeEventEmitter } from 'react-native';
 import ProgressCircle from 'react-native-progress-circle';
 import { SpeedDial, Button, Divider, Dialog, Icon } from '@rneui/themed';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useBleContext } from '../components/BleContext';
 import BleManager from 'react-native-ble-manager';
+import { Buffer } from 'buffer';
+
+const BleManagerModule = NativeModules.BleManager;
+const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+
 
 const WeightDisplay = (props: any) => {
   const [addFarmerDial, setaddFarmerDial] = useState(false);
-  const { connectedScale, currentFarmer, setCurrentReceipt, setCurrentFarmer } = useBleContext();
+  const { connectedScale, currentFarmer, setCurrentReceipt, setCurrentFarmer, setConnectedScale } = useBleContext();
   const [isSelling, setisSelling] = useState(false);
   const [parsedWeightData, setparsedWeightData] = useState();
+  const [accumulatedWeight, setaccumulatedWeight] = useState<any>();
 
-  // console.log(connectedScale?.serviceUUIDs[0]);
+  console.log(connectedScale);
 
-  
+
   useEffect(() => {
-
-    const weightCharacteristicUUID = 'YOUR_WEIGHT_CHARACTERISTIC_UUID';
-    console.log("---------------------------------");
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    BleManager.read(
-      connectedScale?.id,
-      "181d",
-      '2A98',
-    )
-      .then((readData) => {
-        // Success code
-        console.log("Read: " + parseFloat(readData));
-
-        // https://github.com/feross/buffer
-        // https://nodejs.org/api/buffer.html#static-method-bufferfromarray
-        const buffer = Buffer.from(readData);
-        const sensorData = buffer.readUInt8(1);
-        console.log(sensorData);
-      })
-      .catch((error) => {
-        // Failure code
-        console.log(error);
-        setparsedWeightData(0);
-      });
-}, [parsedWeightData, connectedScale])
+    if (connectedScale) {
+      subscribeToNotifications();
+    }
+  }, [connectedScale]);
 
   const sellCrops = async () => {
     setisSelling(true);
@@ -52,7 +35,7 @@ const WeightDisplay = (props: any) => {
       const requestBody = {
         cropId: currentFarmer?.cropId,
         farmerId: currentFarmer?.id,
-        quantity_in_kg:parsedWeightData, // You might want to get this value from user input or elsewhere
+        quantity_in_kg: parsedWeightData, // You might want to get this value from user input or elsewhere
       };
 
       const response = await fetch("http://172.17.17.151:1999/mobile_api/scale_crop_sale", {
@@ -93,56 +76,117 @@ const WeightDisplay = (props: any) => {
       props.navigation.navigate("receipt")
     }
   };
-  const getWeight = () =>  {
+
+  const getWeight = () => {
     const weightCharacteristicUUID = 'YOUR_WEIGHT_CHARACTERISTIC_UUID';
-    
     // @ts-ignore
-    // @ts-ignore
+    // @ts-igdore
     // @ts-ignore
     BleManager.read(
       connectedScale?.id,
       "181d",
       '2A98',
     )
-      .then((readData) => {
+      .then((readData: any) => {
         // Success code
-        console.log("Read: " + parseFloat(readData));
-        setparsedWeightData(parseFloat(readData))
+        console.log(readData);
+
+
         // https://github.com/feross/buffer
         // https://nodejs.org/api/buffer.html#static-method-bufferfromarray
         const buffer = Buffer.from(readData);
-        const sensorData = buffer.readUInt8(1);
-        console.log(sensorData);
+        const sensorData: any = buffer.readUInt8(1);
+        console.log("Read: " + parseFloat(sensorData));
+        setparsedWeightData(sensorData)
+
       })
       .catch((error) => {
         // Failure code
-        console.log("---------------------------------");
-        setparsedWeightData(1);
         console.log(error);
+        Alert.alert("Lost connection to the scale connect again")
+        setparsedWeightData(0);
+        setConnectedScale(null)
       });
   }
 
-  const TareWeight = () =>  {
+  const subscribeToNotifications = async () => {
     try {
-      const peripheralId = connectedScale?.id;
+      const weightCharacteristicUUID = 'YOUR_WEIGHT_CHARACTERISTIC_UUID';
 
-      const tareCharacteristicUUID = 'YOUR_TARE_COMMAND_CHARACTERISTIC_UUID';
+      // Before startNotification you need to call retrieveServices
+      await BleManager.retrieveServices(connectedScale?.id);
 
-      const tareCommand = 'YOUR_TARE_COMMAND'; // Replace with the actual tare command bytes.
-
-      BleManager.write(peripheralId, tareCharacteristicUUID, tareCommand)
+      await BleManager.startNotification(connectedScale?.id,
+        "181d",
+        '2A98')
         .then(() => {
-          console.log('Tare command sent successfully.');
-
+          console.log('Subscribed to notifications.');
         })
         .catch((error) => {
-          console.error('Error sending tare command:', error);
+          console.error('Error subscribing to notifications:', error);
         });
     } catch (error) {
-      console.error('Error sending tare command:', error);
+      console.error('Error subscribing to notifications:', error);
+       // Failure code
+       console.log(error);
+       Alert.alert("Lost connection to the scale connect again")
+       setparsedWeightData(0);
+       setConnectedScale(null)
+    }
+  };
+
+  bleManagerEmitter.addListener('BleManagerDidUpdateValueForCharacteristic', ({ peripheral, characteristic, value }: any) => {
+    if (peripheral.id === connectedScale?.id) {
+      // Handle incoming notifications.
+      console.log('====================================');
+      console.log(value);
+      console.log('====================================');
+      const stringValue = String.fromCharCode(...value)
+      const parsedData: any = parseFloat(stringValue);
+      const weightKg: any = parsedData / 1000;
+      setparsedWeightData(weightKg.toFixed(2));
+    }
+  });
+
+  const tareScale = () => {
+    const tareCharacteristicUUID = '2A98';
+    const tareCommand = 'TARE'; // Replace with the actual tare command bytes.
+    console.log("----------------------");
+
+    try {
+      BleManager.write(
+        connectedScale?.id,
+        "181d",
+        '2A98',
+        // encode & extract raw `number[]`.
+        // Each number should be in the 0-255 range as it is converted from a valid byte.
+        [1, 2]
+      )
+        .then((rep: any) => {
+          // Success code
+          console.log("Write: " + rsp);
+        })
+        .catch((error) => {
+          // Failure code
+          console.log(error);
+        });
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+    }
+  };
+
+  const accumulateWeight = () => {
+    if (accumulatedWeight) {
+      setaccumulatedWeight(accumulatedWeight+ parsedWeightData)
+    }else{
+      setaccumulatedWeight(parsedWeightData)
     }
   }
 
+  // @ts-ignore
+  // @ts-ignore
   return (
     <View style={styles.container}>
       <StatusBar
@@ -169,16 +213,16 @@ const WeightDisplay = (props: any) => {
           color="#3399FF"
           shadowColor="#999"
           bgColor="#fff">
-          <Text style={{ fontSize: 28, fontFamily: 'Poppins-SemiBold', }}>{parsedWeightData? parsedWeightData: 0}Kgs</Text>
+          <Text style={{ fontSize: 28, fontFamily: 'Poppins-SemiBold', }}>{parsedWeightData ? parsedWeightData : 0}Kgs</Text>
         </ProgressCircle>
       </View>
       <View style={{ marginTop: 10 }}>
-        <Text style={{ fontSize: 20, marginTop: 10, marginBottom: 10, fontFamily: 'Poppins-SemiBold', textAlign:"center" }}>
-          Current weight: {parsedWeightData? parsedWeightData: 0}kgs
+        <Text style={{ fontSize: 20, marginTop: 10, marginBottom: 10, fontFamily: 'Poppins-SemiBold', textAlign: "center" }}>
+          Current weight: {accumulatedWeight? accumulatedWeight:{parsedWeightData ?parsedWeightData : 0}}kgs
         </Text>
-        <View style={{flexDirection:"row", width:"80%", justifyContent:"space-evenly"}}>
-        <Button title="GET SCALE WEIGHT" onPress={getWeight} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
-        <Button title="TARE WEIGHT" onPress={getWeight} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
+        <View style={{ flexDirection: "row", width: "80%", justifyContent: "space-evenly" }}>
+          <Button title="ACCUMULATE WEIGHT" onPress={accumulateWeight} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
+          <Button title="TARE WEIGHT" onPress={tareScale} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
 
         </View>
       </View>
@@ -206,31 +250,20 @@ const WeightDisplay = (props: any) => {
       )}
       <SpeedDial
         isOpen={addFarmerDial}
-        icon={<Icon
-          name='heartbeat'
-          type='font-awesome'
-          color='#f50'
-        />}
+        icon={{ name: "person", color: "#fff" }}
         openIcon={{ name: 'close', color: '#fff' }}
         iconContainerStyle={{ backgroundColor: "#0079FF" }}
         onOpen={() => setaddFarmerDial(!addFarmerDial)}
         onClose={() => setaddFarmerDial(!addFarmerDial)}>
+
         <SpeedDial.Action
-          icon={<Icon name="person" size={24} color="#fff" />}
+          icon={{ name: "person", color: "#fff" }}
           title="Add farmer"
           iconContainerStyle={{ backgroundColor: "#0079FF" }}
           onPress={() => props.navigation.navigate("farmer")}
           titleStyle={{ fontFamily: 'Poppins-Medium', }}
         />
-        <SpeedDial.Action
-          icon={
-            <Icon name="bluetooth" size={24} color="#fff" />
-          }
-          title="Connect device"
-          titleStyle={{ fontFamily: 'Poppins-Medium', }}
-          iconContainerStyle={{ backgroundColor: "#0079FF" }}
-          onPress={() => props.navigation.navigate("devices")}
-        />
+
       </SpeedDial>
       <Dialog
         isVisible={isSelling}
