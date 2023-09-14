@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Pressable, ActivityIndicator, Alert, StatusBar } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, Pressable, ActivityIndicator, Alert, StatusBar } from 'react-native';
 import { Input, Avatar, Dialog, Button, Divider } from '@rneui/themed';
 import RadioGroup from 'react-native-radio-buttons-group';
 import { styles } from '../styles';
@@ -135,6 +135,9 @@ const AddFarmerScreen = (props:any) => {
       <StatusBar
         backgroundColor="white"
       />
+        <ScrollView 
+    contentContainerStyle={{alignItems:"center"}}
+    >
       <View>
         <Text
           style={{
@@ -230,6 +233,7 @@ const AddFarmerScreen = (props:any) => {
          />
           )}
         </View>
+        </ScrollView>
     </SafeAreaView>
   );
 };

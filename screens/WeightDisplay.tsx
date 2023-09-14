@@ -294,8 +294,8 @@ const styles = StyleSheet.create({
   },
   weightView: {
     borderWidth: 2,
-    width: 300,
-    height: 200,
+    width: 200,
+    height: 170,
     borderRadius: 10,
     borderColor: 'gray',
     marginTop: 30,

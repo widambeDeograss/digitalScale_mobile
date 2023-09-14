@@ -1,65 +1,66 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useBleContext } from '../components/BleContext';
+import {View, Text, StyleSheet, ScrollView, Button} from 'react-native';
+import {useBleContext} from '../components/BleContext';
+import QRCode from 'qrcode.react';
 import RNPrint from 'react-native-print';
 
 const ReceiptScreen = () => {
-  const { connectedScale, currentFarmer, setCurrentReceipt, currentReceipt } = useBleContext();
+  const {connectedScale, currentFarmer, setCurrentReceipt, currentReceipt} =
+    useBleContext();
 
   const printReceipt = async () => {
     try {
-      // Define the receipt content in HTML format
-      // Define the receipt content in HTML format with inline styles
       const receiptHTML = `
-<div style="background-color: #f7f7f7; padding: 16px; border-radius: 10px; elevation: 3; font-family: 'Poppins-Regular';">
-  <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px; font-family: 'Poppins-Bold';">Receipt</h1>
-  <p style="font-size: 16px; margin-bottom: 12px; font-family: 'Poppins-Regular';">Receipt ID: ${currentReceipt?.receiptId}</p>
-  <hr style="border-bottom-color: black; border-bottom-width: 1px; margin-bottom: 12px;">
-  
-  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
-    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Crop:</span>
-    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.crop}</span>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
-    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Corporate:</span>
-    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.corporate}</span>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
-    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Farmer:</span>
-    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.farmer}</span>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
-    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Sale Date:</span>
-    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.saledate}</span>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
-    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Quantity (Before):</span>
-    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.quantity_before} kg</span>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
-    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Moisture Percentage:</span>
-    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.moisturePercentage}</span>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
-    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Quantity (In Kg):</span>
-    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.quantityInKg} kg</span>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-top: 12px; border-top-width: 1px; padding-top: 8px;">
-    <span style="font-size: 18px; font-weight: bold; font-family: 'Poppins-Bold';">Total Pay:</span>
-    <span style="font-size: 18px; font-weight: bold; color: green; font-family: 'Poppins-Bold';">$${currentReceipt?.totalPay}</span>
-  </div>
-</div>
-`;
+      <div style="width: 58mm; padding: 10px; text-align: center; font-family: 'Poppins-Regular';">
+        <h1 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; font-family: 'Poppins-Bold';">Receipt</h1>
+        <p style="font-size: 14px; margin-bottom: 12px; font-family: 'Poppins-Regular';">Receipt ID: ${currentReceipt?.receiptId}</p>
+        <hr style="border-bottom-color: black; border-bottom-width: 1px; margin-bottom: 12px;">
+        
+        <div style="font-size: 14px; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+          <span style="font-weight: bold; font-family: 'Poppins-Bold';">Crop:</span>
+          <span>${currentReceipt?.crop}</span>
+        </div>
+      
+        <div style="font-size: 14px; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+          <span style="font-weight: bold; font-family: 'Poppins-Bold';">Corporate:</span>
+          <span>${currentReceipt?.corporate}</span>
+        </div>
+      
+        <div style="font-size: 14px; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+          <span style="font-weight: bold; font-family: 'Poppins-Bold';">Farmer:</span>
+          <span>${currentReceipt?.farmer}</span>
+        </div>
+      
+        <div style="font-size: 14px; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+          <span style="font-weight: bold; font-family: 'Poppins-Bold';">Sale Date:</span>
+          <span>${currentReceipt?.saledate}</span>
+        </div>
+      
+        <div style="font-size: 14px; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+          <span style="font-weight: bold; font-family: 'Poppins-Bold';">Quantity (Before):</span>
+          <span>${currentReceipt?.quantity_before} kg</span>
+        </div>
+      
+        <div style="font-size: 14px; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+          <span style="font-weight: bold; font-family: 'Poppins-Bold';">Moisture Percentage:</span>
+          <span>${currentReceipt?.moisturePercentage}</span>
+        </div>
+      
+        <div style="font-size: 14px; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+          <span style="font-weight: bold; font-family: 'Poppins-Bold';">Quantity (In Kg):</span>
+          <span>${currentReceipt?.quantityInKg} kg</span>
+        </div>
+      
+        <div style="margin-top: 14px; border-top: 1px dashed black; padding-top: 10px;">
+          <span style="font-size: 16px; font-weight: bold; font-family: 'Poppins-Bold';">Total Pay:</span>
+          <span style="font-size: 16px; color: green; font-family: 'Poppins-Bold';">$${currentReceipt?.totalPay}</span>
+        </div>
+      </div>
+      `;
+      
+      
 
       // Rest of your ReceiptScreen component remains the same
-
 
       // Print the receipt
       await RNPrint.print({
@@ -76,7 +77,9 @@ const ReceiptScreen = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.receipt}>
         <Text style={styles.title}>Receipt</Text>
-        <Text style={styles.subtitle}>Receipt ID: {currentReceipt?.receiptId}</Text>
+        <Text style={styles.subtitle}>
+          Receipt ID: {currentReceipt?.receiptId}
+        </Text>
         <View style={styles.line} />
 
         <View style={styles.section}>
@@ -101,23 +104,35 @@ const ReceiptScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quantity (Before):</Text>
-          <Text style={styles.sectionText}>{currentReceipt?.quantity_before} kg</Text>
+          <Text style={styles.sectionText}>
+            {currentReceipt?.quantity_before} kg
+          </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Moisture Percentage:</Text>
-          <Text style={styles.sectionText}>{currentReceipt?.moisturePercentage}</Text>
+          <Text style={styles.sectionText}>
+            {currentReceipt?.moisturePercentage}
+          </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quantity (In Kg):</Text>
-          <Text style={styles.sectionText}>{currentReceipt?.quantityInKg} kg</Text>
+          <Text style={styles.sectionText}>
+            {currentReceipt?.quantityInKg} kg
+          </Text>
         </View>
 
         <View style={styles.totalSection}>
           <Text style={styles.totalTitle}>Total Pay:</Text>
-          <Text style={styles.totalAmount}>{currentReceipt?.totalPay} Tsh/=</Text>
+          <Text style={styles.totalAmount}>
+            {currentReceipt?.totalPay} Tsh/=
+          </Text>
         </View>
+
+        <View>
+      <Button onPress={printReceipt} title="Print Receipt" />
+    </View>
       </View>
     </ScrollView>
   );
@@ -125,9 +140,9 @@ const ReceiptScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     paddingVertical: 24,
     fontFamily: 'Poppins-Regular', // Apply the Poppins-Regular font family
   },
