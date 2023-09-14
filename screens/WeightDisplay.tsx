@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar, Alert, NativeModules, NativeEventEmitter } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Alert, NativeModules, NativeEventEmitter,ScrollView } from 'react-native';
 import ProgressCircle from 'react-native-progress-circle';
 import { SpeedDial, Button, Divider, Dialog, Icon } from '@rneui/themed';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -188,18 +188,21 @@ const WeightDisplay = (props: any) => {
   // @ts-ignore
   // @ts-ignore
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}
+    contentContainerStyle={{alignItems:"center"}}
+    >
       <StatusBar
+       barStyle="light-content"
         backgroundColor="white"
       />
       <View style={{ marginTop: 20 }}>
         {connectedScale ? (
           <View>
-            <Text style={{ marginTop: 10, fontStyle: 'normal', fontSize: 18, fontFamily: "Poppins-Bold" }}>Name: {connectedScale.name}</Text>
-            <Text style={{ marginTop: 10, fontStyle: 'normal', fontSize: 18, fontFamily: "Poppins-Regular" }}>ID: {connectedScale.id}</Text>
+            <Text style={{ marginTop: 10, fontStyle: 'normal', fontSize: 18, fontFamily: "Poppins-Bold", color:"black" }}>Name: {connectedScale.name}</Text>
+            <Text style={{ marginTop: 10, fontStyle: 'normal', fontSize: 18, fontFamily: "Poppins-Regular", color:"black" }}>ID: {connectedScale.id}</Text>
           </View>
         ) : (
-          <Text style={{ marginTop: 10, fontStyle: 'normal', fontSize: 18, fontFamily: 'Poppins-SemiBold', }}>
+          <Text style={{ marginTop: 10, fontStyle: 'normal', fontSize: 18, fontFamily: 'Poppins-SemiBold', color:"black"}}>
             No connection!! Scan to connect
           </Text>
         )}
@@ -218,10 +221,10 @@ const WeightDisplay = (props: any) => {
       </View>
       <View style={{ marginTop: 10 }}>
         <Text style={{ fontSize: 20, marginTop: 10, marginBottom: 10, fontFamily: 'Poppins-SemiBold', textAlign: "center" }}>
-          Current weight: {accumulatedWeight? accumulatedWeight:{parsedWeightData ?parsedWeightData : 0}}kgs
+          Current weight: {accumulatedWeight? accumulatedWeight:parsedWeightData ?parsedWeightData : 0}kgs
         </Text>
-        <View style={{ flexDirection: "row", width: "80%", justifyContent: "space-evenly" }}>
-          <Button title="ACCUMULATE WEIGHT" onPress={accumulateWeight} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
+        <View style={{ flexDirection: "row", width: "80%", justifyContent: "space-between" }}>
+          <Button title="ACCUMULATE " onPress={accumulateWeight} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
           <Button title="TARE WEIGHT" onPress={tareScale} type="outline" style={{ marginTop: 13 }} titleStyle={{ fontFamily: 'Poppins-Medium', }} />
 
         </View>
@@ -262,7 +265,7 @@ const WeightDisplay = (props: any) => {
           iconContainerStyle={{ backgroundColor: "#0079FF" }}
           onPress={() => props.navigation.navigate("farmer")}
           titleStyle={{ fontFamily: 'Poppins-Medium', }}
-        />
+       />
 
       </SpeedDial>
       <Dialog
@@ -274,7 +277,7 @@ const WeightDisplay = (props: any) => {
         <Dialog.Loading
         />
       </Dialog>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -283,7 +286,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     // justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   text: {
     fontSize: 24,

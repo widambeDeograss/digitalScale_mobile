@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   NativeEventEmitter,
   PermissionsAndroid,
+  ScrollView
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -18,7 +19,7 @@ import {DeviceList} from '../components/DeviceCard';
 import {styles} from '../styles';
 import {useBleContext} from '../components/BleContext';
 import {Divider, Dialog} from '@rneui/themed';
-import { ScrollView } from 'react-native-gesture-handler';
+// import { ScrollView } from 'react-native-gesture-handler';
 
 const BleManagerModule = NativeModules.BleManager;
 const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
@@ -139,20 +140,20 @@ const DeviceScreen = (props: any) => {
   };
   const isDarkMode = useColorScheme() === 'dark';
   const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: isDarkMode ?Colors.lighter : Colors.lighter,
   };
   // render list of bluetooth devices
   return (
     <View style={[backgroundStyle, styles.container]}>
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={isDarkMode ? 'light-content' : 'light-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
       <View style={{paddingHorizontal: 20, flex:1, height:""}}>
         <Text
           style={[
             styles.title,
-            {color: isDarkMode ? Colors.white : Colors.black},
+            {color: isDarkMode ? Colors.black : Colors.black, fontSize:20},
           ]}>
           Digital scale device connection
         </Text>
@@ -167,7 +168,7 @@ const DeviceScreen = (props: any) => {
         <Text
           style={[
             styles.subtitle,
-            {color: isDarkMode ? Colors.white : Colors.black},
+            {color: isDarkMode ? Colors.black : Colors.black, fontSize:16},
           ]}>
           Discovered Devices:
         </Text>
@@ -185,13 +186,13 @@ const DeviceScreen = (props: any) => {
               keyExtractor={item => item.id}
             />
           ) : (
-            <Text style={styles.noDevicesText}>No Bluetooth devices found</Text>
+            <Text style={[styles.noDevicesText, { color:"black"}]}>No Bluetooth devices found</Text>
           )}
         </View>
         <Text
           style={[
             styles.subtitle,
-            {color: isDarkMode ? Colors.white : Colors.black},
+            {color: isDarkMode ? Colors.black : Colors.black},
           ]}>
           Connected Devices:
         </Text>
@@ -209,7 +210,7 @@ const DeviceScreen = (props: any) => {
             keyExtractor={item => item.id}
           />
         ) : (
-          <Text style={styles.noDevicesText}>No connected devices</Text>
+          <Text style={[styles.noDevicesText, {color:"black"}]}>No connected devices</Text>
         )}
         </View>
       </View>
@@ -222,6 +223,7 @@ const DeviceScreen = (props: any) => {
             fontFamily: 'Poppins-SemiBold',
             fontSize: 16,
             textAlign: 'center',
+             color:"black"
           }}>
           Scanning available Ble devices
         </Text>

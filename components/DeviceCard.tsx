@@ -16,8 +16,8 @@ interface device {
       {peripheral&& (
         <View style={styles.deviceContainer}>
           <View style={styles.deviceItem}>
-            <Text style={styles.deviceName}>{peripheral?.name}</Text>
-            <Text style={styles.deviceInfo}>RSSI: {peripheral?.rssi}</Text>
+            <Text style={[styles.deviceName, {color:"black"}]}>{peripheral?.name}</Text>
+            <Text style={[styles.deviceInfo, {color:"black"}]}>RSSI: {peripheral?.rssi}</Text>
           </View>
           <TouchableOpacity
             onPress={() =>
@@ -27,9 +27,9 @@ interface device {
             <Text
               style={[
                 styles.scanButtonText,
-                {fontWeight: 'bold', fontSize: 16},
+                { fontSize: 10},
               ]}>
-              {peripheral?.advertising.isConnectable ? 'Connect' : 'Out of reach' }
+              {peripheral?.advertising.isConnectable ? 'Connect' : 'Non Connectable' }
             </Text>
           </TouchableOpacity>
         </View>

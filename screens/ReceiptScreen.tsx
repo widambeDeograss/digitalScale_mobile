@@ -1,9 +1,76 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useBleContext } from '../components/BleContext';
+import RNPrint from 'react-native-print';
 
-const ReceiptScreen= () => {
-    const { connectedScale, currentFarmer, setCurrentReceipt, currentReceipt } = useBleContext();
+const ReceiptScreen = () => {
+  const { connectedScale, currentFarmer, setCurrentReceipt, currentReceipt } = useBleContext();
+
+  const printReceipt = async () => {
+    try {
+      // Define the receipt content in HTML format
+      // Define the receipt content in HTML format with inline styles
+      const receiptHTML = `
+<div style="background-color: #f7f7f7; padding: 16px; border-radius: 10px; elevation: 3; font-family: 'Poppins-Regular';">
+  <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px; font-family: 'Poppins-Bold';">Receipt</h1>
+  <p style="font-size: 16px; margin-bottom: 12px; font-family: 'Poppins-Regular';">Receipt ID: ${currentReceipt?.receiptId}</p>
+  <hr style="border-bottom-color: black; border-bottom-width: 1px; margin-bottom: 12px;">
+  
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Crop:</span>
+    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.crop}</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Corporate:</span>
+    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.corporate}</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Farmer:</span>
+    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.farmer}</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Sale Date:</span>
+    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.saledate}</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Quantity (Before):</span>
+    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.quantity_before} kg</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Moisture Percentage:</span>
+    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.moisturePercentage}</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Poppins-Regular';">
+    <span style="font-size: 14px; font-weight: bold; font-family: 'Poppins-Bold';">Quantity (In Kg):</span>
+    <span style="font-size: 14px; font-family: 'Poppins-Regular';">${currentReceipt?.quantityInKg} kg</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-top: 12px; border-top-width: 1px; padding-top: 8px;">
+    <span style="font-size: 18px; font-weight: bold; font-family: 'Poppins-Bold';">Total Pay:</span>
+    <span style="font-size: 18px; font-weight: bold; color: green; font-family: 'Poppins-Bold';">$${currentReceipt?.totalPay}</span>
+  </div>
+</div>
+`;
+
+      // Rest of your ReceiptScreen component remains the same
+
+
+      // Print the receipt
+      await RNPrint.print({
+        html: receiptHTML,
+      });
+
+      console.log('Receipt printed successfully.');
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
